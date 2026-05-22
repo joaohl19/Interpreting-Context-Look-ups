@@ -20,7 +20,7 @@ Example command to call script:
 python examples/api_request_parallel_processor.py \
   --requests_filepath examples/data/example_requests_to_parallel_process.jsonl \
   --save_filepath examples/data/example_requests_to_parallel_process_results.jsonl \
-  --request_url https://api.openai.com/v1/embeddings \
+  --request_url https://api.openai.com/v1/chat/completions \
   --max_requests_per_minute 1500 \
   --max_tokens_per_minute 6250000 \
   --token_encoding_name cl100k_base \
@@ -174,7 +174,9 @@ async def process_api_requests_from_file(
                                 task_id=next(task_id_generator),
                                 request_json=request_json,
                                 token_consumption=num_tokens_consumed_from_request(
-                                    request_json, api_endpoint, token_encoding_name
+                                    request_json=request_json,
+                                    api_endpoint=api_endpoint,
+                                    token_encoding_name=token_encoding_name,
                                 ),
                                 attempts_left=max_attempts,
                                 metadata=request_json.pop("metadata", None),
@@ -362,7 +364,6 @@ class APIRequest:
 
 # functions
 
-
 def api_endpoint_from_url(request_url):
     """Extract the API endpoint from the request URL."""
     match = re.search("^https://[^/]+/v\\d+/(.+)$", request_url)
@@ -395,7 +396,7 @@ def num_tokens_consumed_from_request(
             for message in request_json["messages"]:
                 num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
                 for key, value in message.items():
-                    num_tokens += len(encoding.encode(value))
+                    num_tokens += len(encoding.encode(str(value)))
                     if key == "name":  # if there's a name, the role is omitted
                         num_tokens -= 1  # role is always required and always 1 token
             num_tokens += 2  # every reply is primed with <im_start>assistant
@@ -444,18 +445,21 @@ def task_id_generator_function():
 
 
 # run script
-
-
 if __name__ == "__main__":
     # parse command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--requests_filepath")
-    parser.add_argument("--save_filepath", default=None)
-    parser.add_argument("--request_url", default="https://api.openai.com/v1/embeddings")
-    parser.add_argument("--api_key", default=os.getenv("OPENAI_API_KEY_3"))
-    parser.add_argument("--max_requests_per_minute", type=int, default=3_000 * 0.5)
-    parser.add_argument("--max_tokens_per_minute", type=int, default=250_000 * 0.5)
-    parser.add_argument("--token_encoding_name", default="cl100k_base")
+    parser.add_argument("--requests_filepath", default=None) 
+    parser.add_argument("--save_filepath", default=None) 
+    parser.add_argument("--request_url", default="https://api.openai.com/v1/chat/completions")
+    parser.add_argument("--api_key", default=os.getenv("OPENAI_API_KEY"))
+    #parser.add_argument("--max_requests_per_minute", type=int, default=3_000 * 0.5)
+    #parser.add_argument("--max_tokens_per_minute", type=int, default=250_000 * 0.5)
+    parser.add_argument("--max_requests_per_minute", type=int, default=500*0.8)
+    parser.add_argument("--max_tokens_per_minute", type=int, default=200000*0.8)
+    parser.add_argument(
+        "--token_encoding_name",
+        default=tiktoken.encoding_for_model("gpt-4.1-nano").name,
+    )
     parser.add_argument("--max_attempts", type=int, default=5)
     parser.add_argument("--logging_level", default=logging.INFO)
     args = parser.parse_args()
