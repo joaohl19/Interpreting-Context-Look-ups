@@ -455,10 +455,11 @@ if __name__ == "__main__":
     #parser.add_argument("--max_requests_per_minute", type=int, default=3_000 * 0.5)
     #parser.add_argument("--max_tokens_per_minute", type=int, default=250_000 * 0.5)
     parser.add_argument("--max_requests_per_minute", type=int, default=500*0.8)
-    parser.add_argument("--max_tokens_per_minute", type=int, default=200000*0.8)
+    parser.add_argument("--max_tokens_per_minute", type=int, default=500000*0.8)
     parser.add_argument(
         "--token_encoding_name",
-        default=tiktoken.encoding_for_model("gpt-4.1-nano").name,
+        #default=tiktoken.encoding_for_model("gpt-4.1-nano").name,
+        default="o200k_base"
     )
     parser.add_argument("--max_attempts", type=int, default=5)
     parser.add_argument("--logging_level", default=logging.INFO)

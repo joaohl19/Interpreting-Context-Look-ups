@@ -122,7 +122,7 @@ class ClassifyPromptGen:
     neuron_str: str = field(init=False) # 'The attention head being studied helps to predict that the next token is "{token}", but it is only active in some documents and not others.\n'
     explanation: str = field(init=False) # "In particular, this attention head is active when the document " + explanation_str + "\n"
     instruction: str = "\nGiven the following set of documents, use the explanation sort them into two groups based on whether the attention head is active or not.\n"
-    formatting: str = "Output the following format: \nExamples where the attention head is active:\n1. <example_1>\n2. <example_2>\n...\n\Examples where the attention head is inactive:\n1. <example_1>\n2. <example_2>\n...\n"
+    formatting: str = "Output the following format: \nExamples where the attention head is active:\n1. <example_1>\n2. <example_2>\n...\nExamples where the attention head is inactive:\n1. <example_1>\n2. <example_2>\n...\n"
 
     question: str = "Is the given example an active example? (Yes/No)\n"
     # pream: str = "The example is active when the example "

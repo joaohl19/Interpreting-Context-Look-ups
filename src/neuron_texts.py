@@ -143,7 +143,7 @@ def find_truncated_texts(model, neuron_max_acts, dataset, device, num_samples=20
                     new_tokens,
                     fwd_hooks=hooks,
                 )
-                if cache[-1].item() > act_ratio * original_act:
+                if cache[-1].item() >= act_ratio * original_act:
                     start = mid
                 else:
                     end = mid
